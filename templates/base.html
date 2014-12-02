@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/foundation.css') }}" />
+    {% block headlink %}
+    {% endblock %}
+    <script src="{{ url_for('static', filename='js/vendor/modernizr.js') }}"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery.js') }}"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('connect', function() {
+            socket.emit('my event', {data: 'I\'m connected!'});
+        });
+    </script>
+    {% block headjs %}
+    {% endblock %}
+</head>
+<body>
+    {% block content %}
+    {% endblock %}
+    <script src="{{ url_for('static', filename='js/foundation.min.js') }}"></script>
+    <script>
+      $(document).foundation();
+    </script>
+</body>
+</html>

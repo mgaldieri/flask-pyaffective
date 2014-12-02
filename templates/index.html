@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Affective Space{% endblock %}
+
+{% block headjs %}
+    <script type="application/javascript" src="{{ url_for('static', filename='js/three/OrbitControls.js') }}"></script>
+    <script type="application/javascript" src="{{ url_for('static', filename='js/three/Detector.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="small-12 column">
+            <h1>Teste</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-6 column">
+            <div id="canvas_container"></div>
+        </div>
+    </div>
+
+    <script>
+        var container = $('#canvas_container');
+        var scene = new THREE.Scene();
+{#        var camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerWidth, 1, 1000 );#}
+        var camera = new THREE.PerspectiveCamera( 60, container.width() / container.width(), 1, 1000 );
+
+        controls = new THREE.OrbitControls( camera );
+        controls.damping = 0.2;
+        controls.addEventListener( 'change', render );
+
+        var renderer = new THREE.WebGLRenderer();
+
+        renderer.setSize( container.width(), container.width() );
+        container.append(renderer.domElement);
+        //document.body.appendChild( renderer.domElement );
+
+        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        var material = new THREE.MeshBasicMaterial( {
+            color: 0x00ff00
+        } );
+
+        for (var i = 0; i < 8; i ++) {
+            // put mesh and edge helper here
+        }
+        var mesh = new THREE.Mesh( geometry, material );
+        //scene.add( mesh );
+
+        var edge = new THREE.EdgesHelper( mesh, 0x00ffff );
+        edge.material.linewidth = 1;
+        scene.add( edge );
+
+        camera.position.z = 5;
+
+        function render() {
+            requestAnimationFrame( render );
+            renderer.render( scene, camera );
+        }
+        render();
+    </script>
+{% endblock %}
