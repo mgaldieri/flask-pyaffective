@@ -3,59 +3,387 @@
 {% block title %}Affective Space{% endblock %}
 
 {% block headjs %}
-    <script type="application/javascript" src="{{ url_for('static', filename='js/three/OrbitControls.js') }}"></script>
-    <script type="application/javascript" src="{{ url_for('static', filename='js/three/Detector.js') }}"></script>
+{#    <script type="application/javascript" src="{{ url_for('static', filename='js/three/OrbitControls.js') }}"></script>#}
+{#    <script type="application/javascript" src="{{ url_for('static', filename='js/three/Detector.js') }}"></script>#}
 {% endblock %}
 
 {% block content %}
     <div class="row">
-        <div class="small-12 column">
-            <h1>Teste</h1>
+        <div class="small-12 small-text-center column">
+            <h2>Modelo Afetivo</h2>
         </div>
     </div>
     <div class="row">
-        <div class="small-6 column">
-            <div id="canvas_container"></div>
+        <div class="small-12 medium-6 medium-centered columns">
+            <form>
+                <fieldset>
+                    <legend>Personalidade</legend>
+                    <label>Openness</label>
+                    <div class="range-slider" data-slider data-options="start: -1; end: 1; step: 0.1; display_selector: #sliderOutput3;">
+                        <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                        <span class="range-slider-active-segment"></span>
+                        <input class="ocean" data-ocean="openness" id="ocean_o" type="hidden">
+                    </div>
+                    <label>Conscientiousness</label>
+                    <div class="range-slider" data-slider data-options="start: -1; end: 1; step: 0.1; display_selector: #sliderOutput3;">
+                        <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                        <span class="range-slider-active-segment"></span>
+                        <input class="ocean" data-ocean="conscientiousness" id="ocean_c" type="hidden">
+                    </div>
+                    <label>Extraversion</label>
+                    <div class="range-slider" data-slider data-options="start: -1; end: 1; step: 0.1; display_selector: #sliderOutput3;">
+                        <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                        <span class="range-slider-active-segment"></span>
+                        <input class="ocean" data-ocean="extraversion" id="ocean_e" type="hidden">
+                    </div>
+                    <label>Agreeableness</label>
+                    <div class="range-slider" data-slider data-options="start: -1; end: 1; step: 0.1; display_selector: #sliderOutput3;">
+                        <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                        <span class="range-slider-active-segment"></span>
+                        <input class="ocean" data-ocean="agreeableness" id="ocean_a" type="hidden">
+                    </div>
+                    <label>Neuroticism</label>
+                    <div class="range-slider" data-slider data-options="start: -1; end: 1; step: 0.1; display_selector: #sliderOutput3;">
+                        <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                        <span class="range-slider-active-segment"></span>
+                        <input class="ocean" data-ocean="neuroticism" id="ocean_n" type="hidden">
+                    </div>
+                    <div class="row">
+                        <div class="medium-12 medium-centered medium-text-center column">
+                            <button id="ocean_btn" class="button radius">enviar</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+
+{#    <div class="row">#}
+{#        <div class="small-12 small-centered columns">#}
+{#            <div id="canvas_container">#}
+{#                <iframe src="canvas"></iframe>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+    <div class="row">
+        <div class="medium-9 columns">
+            <form>
+                <fieldset>
+                    <legend>OCC</legend>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Admiration</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="admiration" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Anger</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="anger" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Gloating</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="gloating" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Disliking</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="disliking" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Gratification</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="gratification" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Disappointment</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="disappointment" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Gratitude</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="gratitude" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Distress</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="distress" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Hope</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="hope" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Fear</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="fear" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Happy For</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="happy_for" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Fears Confirmed</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="fears_confirmed" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Joy</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="joy" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Hate</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="hate" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Liking</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="liking" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Pity</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="pity" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Love</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="love" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Remorse</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="remorse" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Pride</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="pride" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Reproach</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="reproach" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Relief</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="relief" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Resentment</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="resentment" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label>Satisfaction</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="satisfaction" type="hidden">
+                            </div>
+                        </div>
+                        <div class="small-6 columns">
+                            <label>Shame</label>
+                            <div class="range-slider" data-slider data-options="start: 0; end: 1; step: 0.1;">
+                                <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                                <span class="range-slider-active-segment"></span>
+                                <input class="occ" data-occ="shame" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="medium-12 medium-centered medium-text-center column">
+                            <button id="occ_btn" class="button radius">enviar</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
         </div>
     </div>
 
     <script>
-        var container = $('#canvas_container');
-        var scene = new THREE.Scene();
-{#        var camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerWidth, 1, 1000 );#}
-        var camera = new THREE.PerspectiveCamera( 60, container.width() / container.width(), 1, 1000 );
+{#        var container = $('#canvas_container');#}
+{#        var scene = new THREE.Scene();#}
+{#        var camera = new THREE.PerspectiveCamera( 60, container.width() / container.width(), 1, 5 );#}
+{##}
+{#        controls = new THREE.OrbitControls( camera );#}
+{#        controls.damping = 0.2;#}
+{#        controls.addEventListener( 'change', render );#}
+{##}
+{#        var renderer = new THREE.WebGLRenderer();#}
+{##}
+{#        renderer.setSize( container.width(), container.width() );#}
+{#        container.append(renderer.domElement);#}
+{#        //document.body.appendChild( renderer.domElement );#}
+{##}
+{#        var geometry = new THREE.BoxGeometry( 2, 2, 2 );#}
+{#        var material = new THREE.MeshBasicMaterial( {#}
+{#            color: 0x00ff00#}
+{#        } );#}
+{##}
+{#        var mesh = new THREE.Mesh( geometry, material );#}
+{#        var edge = new THREE.EdgesHelper( mesh, 0x00ffff );#}
+{#        edge.material.linewidth = 1;#}
+{#        scene.add( edge );#}
+{##}
+{#        var gridXZ = new THREE.GridHelper(1, 1);#}
+{#        scene.add(gridXZ);#}
+{##}
+{#        var gridXY = new THREE.GridHelper(1, 1);#}
+{#        gridXY.rotation.x = Math.PI/2;#}
+{#        scene.add(gridXY);#}
+{##}
+{#        var gridYZ = new THREE.GridHelper(1, 1);#}
+{#        gridYZ.rotation.z = Math.PI/2;#}
+{#        scene.add(gridYZ);#}
+{##}
+{##}
+{#        var pers_geom = new THREE.SphereGeometry( 0.1, 8, 8 );#}
+{#        var pers_mat = new THREE.MeshBasicMaterial( {color: 0xffff00} );#}
+{#        var pers_sphere = new THREE.Mesh( pers_geom, pers_mat );#}
+{#        scene.add( pers_sphere );#}
+{##}
+{#        var occ_geom = new THREE.SphereGeometry( 0.1, 8, 8 );#}
+{#        var occ_mat = new THREE.MeshBasicMaterial( {color: 0xff0000} );#}
+{#        var occ_sphere = new THREE.Mesh( occ_geom, occ_mat );#}
+{#        scene.add( occ_sphere );#}
+{##}
+{#        var mood_geom = new THREE.SphereGeometry( 0.1, 8, 8 );#}
+{#        var mood_mat = new THREE.MeshBasicMaterial( {color: 0x00ff00} );#}
+{#        var mood_sphere = new THREE.Mesh( mood_geom, mood_mat );#}
+{#        scene.add( mood_sphere );#}
+{##}
+{#        camera.position.z = 3;#}
+{##}
+{#        function render() {#}
+{#            requestAnimationFrame( render );#}
+{#            renderer.render( scene, camera );#}
+{#        }#}
+{#        render();#}
 
-        controls = new THREE.OrbitControls( camera );
-        controls.damping = 0.2;
-        controls.addEventListener( 'change', render );
+        $(document).ready(function(){
+            var socket = io.connect('http://' + document.domain + ':' + location.port+'/socket');
+            socket.on('connect', function() {
+                socket.emit('my event', {data: 'I\'m connected!'});
+            });
 
-        var renderer = new THREE.WebGLRenderer();
-
-        renderer.setSize( container.width(), container.width() );
-        container.append(renderer.domElement);
-        //document.body.appendChild( renderer.domElement );
-
-        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-        var material = new THREE.MeshBasicMaterial( {
-            color: 0x00ff00
-        } );
-
-        for (var i = 0; i < 8; i ++) {
-            // put mesh and edge helper here
-        }
-        var mesh = new THREE.Mesh( geometry, material );
-        //scene.add( mesh );
-
-        var edge = new THREE.EdgesHelper( mesh, 0x00ffff );
-        edge.material.linewidth = 1;
-        scene.add( edge );
-
-        camera.position.z = 5;
-
-        function render() {
-            requestAnimationFrame( render );
-            renderer.render( scene, camera );
-        }
-        render();
+{#            socket.on('ocean_updated', function(data) {#}
+{#                pers_sphere.position.x = data.x;#}
+{#                pers_sphere.position.y = data.y;#}
+{#                pers_sphere.position.z = data.z;#}
+{#                console.log(data);#}
+{#            });#}
+            $('#ocean_btn').click(function(evt){
+                evt.preventDefault();
+                data = {};
+                $('.ocean').each(function(){
+                    data[$(this).data('ocean')] = parseFloat($(this).val());
+                });
+                console.log(data)
+                socket.emit('ocean', data);
+            });
+            $('#occ_btn').click(function(evt){
+                evt.preventDefault();
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/foundation.min.js') }}"></script>
+    <script>
+      $(document).foundation();
     </script>
 {% endblock %}

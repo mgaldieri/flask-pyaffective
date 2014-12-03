@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block headjs %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/three/OrbitControls.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div id="container"></div>
+    <div class="row">
+        <div class="small-12 small-text-center column">
+            <h3 id="mood">Neutral</h3>
+        </div>
+    </div>
+
+    <script>
+        var container = document.getElementById( 'container' );
+
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerWidth, 1, 5 );
+{#        var camera = new THREE.PerspectiveCamera( 60, container.width() / container.width(), 1, 5 );#}
+
+        controls = new THREE.OrbitControls( camera );
+        //controls.damping = 0.2;
+        controls.addEventListener( 'change', render );
+
+        var renderer = new THREE.WebGLRenderer();
+        container.appendChild( renderer.domElement );
+
+        renderer.setSize( window.innerWidth, window.innerWidth );
+        //document.body.appendChild( renderer.domElement );
+
+        var geometry = new THREE.BoxGeometry( 2, 2, 2 );
+        var material = new THREE.MeshBasicMaterial( {
+            color: 0x00ff00
+        } );
+
+        var mesh = new THREE.Mesh( geometry, material );
+        var edge = new THREE.EdgesHelper( mesh, 0x00ffff );
+        edge.material.linewidth = 3;
+        scene.add( edge );
+
+        var gridXZ = new THREE.GridHelper(1, 1);
+        scene.add(gridXZ);
+
+        var gridXY = new THREE.GridHelper(1, 1);
+        gridXY.rotation.x = Math.PI/2;
+        scene.add(gridXY);
+
+        var gridYZ = new THREE.GridHelper(1, 1);
+        gridYZ.rotation.z = Math.PI/2;
+        scene.add(gridYZ);
+
+
+        var pers_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
+        var pers_mat = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+        var pers_sphere = new THREE.Mesh( pers_geom, pers_mat );
+        scene.add( pers_sphere );
+
+        var occ_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
+        var occ_mat = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+        var occ_sphere = new THREE.Mesh( occ_geom, occ_mat );
+        scene.add( occ_sphere );
+
+        var mood_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
+        var mood_mat = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+        var mood_sphere = new THREE.Mesh( mood_geom, mood_mat );
+        scene.add( mood_sphere );
+
+        camera.position.z = 3;
+
+        function render() {
+            renderer.render( scene, camera );
+        }
+
+        function animate() {
+            requestAnimationFrame( animate );
+        }
+        render();
+
+        $(document).ready(function(){
+            var socket = io.connect('http://' + document.domain + ':' + location.port+'/socket');
+{#            socket.on('connect', function() {#}
+{#                socket.emit('my event', {data: 'I\'m connected!'});#}
+{#            });#}
+
+            socket.on('ocean_updated', function(data) {
+                pers_sphere.position.x = data.x;
+                pers_sphere.position.y = data.y;
+                pers_sphere.position.z = data.z;
+                render();
+                $('#mood').text(data.mood);
+                console.log(data);
+            });
+        });
+    </script>
+
+{% endblock %}
