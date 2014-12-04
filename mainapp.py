@@ -25,19 +25,22 @@ agent = Agent()
 
 @socketio.on('ocean', namespace='/socket')
 def ocean_rcv(data):
-    print 'socket recieved'
-    print 'Data neuroticism: ' + str(data.get('neuroticism'))
     ocean = OCEAN(openness=float(data.get('openness')),
                   conscientiousness=float(data.get('conscientiousness')),
                   extraversion=float(data.get('extraversion')),
                   agreeableness=float(data.get('agreeableness')),
                   neuroticism=float(data.get('neuroticism')))
     agent.personality = ocean
-    #print ocean.pad.state
     emit('ocean_updated', {'x':ocean.pad.state[0],
                            'y':ocean.pad.state[1],
                            'z':ocean.pad.state[2],
                            'mood':ocean.pad.mood().capitalize()}, broadcast=True)
+
+
+@socketio.on('occ', namespace='/socket')
+def occ_rcv(data):
+    occ = OCC()
+    emit('occ_updated', broadcast=True)
 
 
 @app.route('/affective')
