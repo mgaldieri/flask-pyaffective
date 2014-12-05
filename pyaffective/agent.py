@@ -14,6 +14,7 @@ class Agent():
         self.time_threshold = 60
         self.return_source = None
         self.forward = False
+        self.events = []
 
     def set_personality(self, personality=None):
         self.personality = personality if personality else OCEAN()
@@ -21,8 +22,16 @@ class Agent():
     def put(self, vals=None):
         self.timer = time()
         if vals:
+            if isinstance(vals, np.ndarray):
+                self.events.append(vals)
+                #self.return_source = vals
+            elif isinstance(vals, PAD):
+                self.events.append(vals.state)
+            elif isinstance(vals, OCC):
+                self.events.append(vals.pad.state)
+            else:
+                raise Exception('Invalid event type')
             self.forward = True
-            self.return_source = vals
         else:
             self.forward = False
             self.return_source = self.mood
@@ -46,7 +55,8 @@ class Agent():
             delta_t = 60
         k = (float(thres)-float(delta_t))/float(thres)
         if self.forward:
+            self.return_source = np.median(self.events)
             self.mood = k * self.return_source + (1-k) * self.personality.pad.state
         else:
             self.mood = k * self.personality.pad.state + (1-k) * self.return_source
-        return self.mood
+        return PAD(pleasure=self.mood[0], arousal=self.mood[1], dominance=self.mood[2])

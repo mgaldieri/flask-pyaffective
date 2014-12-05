@@ -81,6 +81,34 @@ class OCEAN():
 
 
 class OCC():
+    pad_map = {
+        'admiration': {'P': 0.5, 'A': 0.3, 'D': -0.2},
+        'gloating': {'P': 0.3, 'A': -0.3, 'D': -0.1},
+        'gratification': {'P': 0.6, 'A': 0.5, 'D': 0.4},
+        'gratitude': {'P': 0.4, 'A': 0.2, 'D': -0.3},
+        'hope': {'P': 0.2, 'A': 0.2, 'D': -0.1},
+        'happy_for': {'P': 0.4, 'A': 0.2, 'D': 0.2},
+        'joy': {'P': 0.4, 'A': 0.2, 'D': 0.1},
+        'liking': {'P': 0.4, 'A': 0.16, 'D': -0.24},
+        'love': {'P': 0.3, 'A': 0.1, 'D': 0.2},
+        'pride': {'P': 0.4, 'A': 0.3, 'D': 0.3},
+        'relief': {'P': 0.2, 'A': -0.3, 'D': 0.4},
+        'satisfaction': {'P': 0.3, 'A': -0.2, 'D': 0.4},
+
+        'anger': {'P': -0.51, 'A': 0.59, 'D': 0.25},
+        'disliking': {'P': -0.4, 'A': 0.2, 'D': 0.1},
+        'disappointment': {'P': -0.3, 'A': 0.1, 'D': -0.4},
+        'distress': {'P': -0.4, 'A': -0.2, 'D': -0.5},
+        'fear': {'P': -0.64, 'A': 0.6, 'D': -0.43},
+        'fears_confirmed': {'P': -0.5, 'A': -0.3, 'D': -0.7},
+        'hate': {'P': -0.6, 'A': 0.6, 'D': 0.3},
+        'pity': {'P': -0.4, 'A': -0.2, 'D': -0.5},
+        'remorse': {'P': -0.3, 'A': 0.1, 'D': -0.6},
+        'reproach': {'P': -0.3, 'A': -0.1, 'D': 0.4},
+        'resentment': {'P': -0.2, 'A': -0.3, 'D': -0.2},
+        'shame': {'P': -0.3, 'A': 0.1, 'D': -0.6},
+    }
+
     def __init__(self,
                  admiration=None,
                  gloating=None,
@@ -138,40 +166,20 @@ class OCC():
             self.reproach = reproach
             self.resentment = resentment
             self.shame = shame
-        self.pad = PAD(pleasure=pad[0], arousal=pad[1], dominance=pad[3]) if pad else self.set_pad()
 
-        self.pad_map = {
-            'admiration': {'P': 0.5, 'A': 0.3, 'D': -0.2},
-            'gloating': {'P': 0.3, 'A': -0.3, 'D': -0.1},
-            'gratification': {'P': 0.6, 'A': 0.5, 'D': 0.4},
-            'gratitude': {'P': 0.4, 'A': 0.2, 'D': -0.3},
-            'hope': {'P': 0.2, 'A': 0.2, 'D': -0.1},
-            'happy_for': {'P': 0.4, 'A': 0.2, 'D': 0.2},
-            'joy': {'P': 0.4, 'A': 0.2, 'D': 0.1},
-            'liking': {'P': 0.4, 'A': 0.16, 'D': -0.24},
-            'love': {'P': 0.3, 'A': 0.1, 'D': 0.2},
-            'pride': {'P': 0.4, 'A': 0.3, 'D': 0.3},
-            'relief': {'P': 0.2, 'A': -0.3, 'D': 0.4},
-            'satisfaction': {'P': 0.3, 'A': -0.2, 'D': 0.4},
-
-            'anger': {'P': -0.51, 'A': 0.59, 'D': 0.25},
-            'disliking': {'P': -0.4, 'A': 0.2, 'D': 0.1},
-            'disappointment': {'P': -0.3, 'A': 0.1, 'D': -0.4},
-            'distress': {'P': -0.4, 'A': -0.2, 'D': -0.5},
-            'fear': {'P': -0.64, 'A': 0.6, 'D': -0.43},
-            'fears_confirmed': {'P': -0.5, 'A': -0.3, 'D': -0.7},
-            'hate': {'P': -0.6, 'A': 0.6, 'D': 0.3},
-            'pity': {'P': -0.4, 'A': -0.2, 'D': -0.5},
-            'remorse': {'P': -0.3, 'A': 0.1, 'D': -0.6},
-            'reproach': {'P': -0.3, 'A': -0.1, 'D': 0.4},
-            'resentment': {'P': -0.2, 'A': -0.3, 'D': -0.2},
-            'shame': {'P': -0.3, 'A': 0.1, 'D': -0.6},
-        }
+            self.pad = self.set_pad()
+        else:
+            if isinstance(pad, np.ndarray):
+                self.pad = PAD(pleasure=pad[0], arousal=pad[1], dominance=pad[3]) if pad else self.set_pad()
+            elif isinstance(pad, PAD):
+                self.pad = pad
+            else:
+                raise Exception('Invalid event type')
 
     def set_pad(self):
         emotion = {'P': 0.0, 'A': 0.0, 'D': 0.0}
-        for attr in self.__dict__:
-            temp = self.__dict__[attr]
-            emotion = {k: emotion[k]+temp*self.pad_map[attr][k] for k in temp}
+        for attr in self.pad_map.keys():
+            temp = self.__dict__.get(attr)
+            emotion = {k: emotion[k]+temp*self.pad_map[attr][k] for k in self.pad_map[attr]}
         emotion = {k: emotion[k]/24 for k in emotion}
-        return PAD(pleasure=emotion[0], arousal=emotion[1], dominance=emotion[2])
+        return PAD(pleasure=emotion['P'], arousal=emotion['A'], dominance=emotion['D'])

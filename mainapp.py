@@ -31,16 +31,48 @@ def ocean_rcv(data):
                   agreeableness=float(data.get('agreeableness')),
                   neuroticism=float(data.get('neuroticism')))
     agent.set_personality(ocean)
-    emit('ocean_updated', {'x':ocean.pad.state[0],
-                           'y':ocean.pad.state[1],
-                           'z':ocean.pad.state[2],
-                           'mood':ocean.pad.mood().capitalize()}, broadcast=True)
+    emit('ocean_updated', {'x': ocean.pad.state[0],
+                           'y': ocean.pad.state[1],
+                           'z': ocean.pad.state[2],
+                           'mood': ocean.pad.mood().capitalize()}, broadcast=True)
 
 
 @socketio.on('occ', namespace='/socket')
 def occ_rcv(data):
-    occ = OCC()
-    emit('occ_updated', broadcast=True)
+    occ = OCC(admiration=float(data.get('admiration')),
+              gloating=float(data.get('gloating')),
+              gratification=float(data.get('gratification')),
+              gratitude=float(data.get('gratitude')),
+              hope=float(data.get('hope')),
+              happy_for=float(data.get('happy_for')),
+              joy=float(data.get('joy')),
+              liking=float(data.get('liking')),
+              love=float(data.get('love')),
+              pride=float(data.get('pride')),
+              relief=float(data.get('relief')),
+              satisfaction=float(data.get('satisfaction')),
+              anger=float(data.get('anger')),
+              disliking=float(data.get('disliking')),
+              disappointment=float(data.get('disappointment')),
+              distress=float(data.get('distress')),
+              fear=float(data.get('fear')),
+              fears_confirmed=float(data.get('fears_confirmed')),
+              hate=float(data.get('hate')),
+              pity=float(data.get('pity')),
+              remorse=float(data.get('remorse')),
+              reproach=float(data.get('reproach')),
+              resentment=float(data.get('resentment')),
+              shame=float(data.get('shame')))
+    agent.put(occ)
+    pad = agent.get()
+    emit('occ_updated', {'x': pad.state[0],
+                         'y': pad.state[1],
+                         'z': pad.state[2],
+                         'mood': pad.mood()}, broadcast=True)
+
+@socketio.on('mood_get', namespace='/socket')
+def mood_get_rcv():
+    pass
 
 
 @app.route('/affective')
