@@ -30,7 +30,7 @@ def ocean_rcv(data):
                   extraversion=float(data.get('extraversion')),
                   agreeableness=float(data.get('agreeableness')),
                   neuroticism=float(data.get('neuroticism')))
-    agent.personality = ocean
+    agent.set_personality(ocean)
     emit('ocean_updated', {'x':ocean.pad.state[0],
                            'y':ocean.pad.state[1],
                            'z':ocean.pad.state[2],

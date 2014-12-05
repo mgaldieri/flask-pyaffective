@@ -67,30 +67,31 @@
         var mood_sphere = new THREE.Mesh( mood_geom, mood_mat );
         scene.add( mood_sphere );
 
+        var axis = new THREE.AxisHelper(1.5);
+        scene.add(axis);
+
         camera.position.z = 3;
 
-        function render() {
+        var render = function() {
+            requestAnimationFrame( render );
             renderer.render( scene, camera );
-        }
-
-        function animate() {
-            requestAnimationFrame( animate );
-        }
+        };
         render();
 
         $(document).ready(function(){
             var socket = io.connect('http://' + document.domain + ':' + location.port+'/socket');
-{#            socket.on('connect', function() {#}
-{#                socket.emit('my event', {data: 'I\'m connected!'});#}
-{#            });#}
 
             socket.on('ocean_updated', function(data) {
-                pers_sphere.position.x = data.x;
-                pers_sphere.position.y = data.y;
-                pers_sphere.position.z = data.z;
-                render();
+                pers_sphere.position.set(data.x, data.y, data.z);
                 $('#mood').text(data.mood);
-                console.log(data);
+            });
+
+            socket.on('occ_updated', function(data) {
+                occ_sphere.position.set(data.x, data.y, data.z);
+            });
+
+            socket.on('mood_updated', function(data) {
+                mood_sphere.position.set(data.x, data.y, data.z);
             });
         });
     </script>
