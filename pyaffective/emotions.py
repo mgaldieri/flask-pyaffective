@@ -181,5 +181,5 @@ class OCC():
         for attr in self.pad_map.keys():
             temp = self.__dict__.get(attr)
             emotion = {k: emotion[k]+temp*self.pad_map[attr][k] for k in self.pad_map[attr]}
-        emotion = {k: emotion[k]/24 for k in emotion}
+        #emotion = {k: emotion[k]/24 for k in emotion}
         return PAD(pleasure=emotion['P'], arousal=emotion['A'], dominance=emotion['D'])

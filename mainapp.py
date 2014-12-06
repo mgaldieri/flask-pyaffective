@@ -64,11 +64,10 @@ def occ_rcv(data):
               resentment=float(data.get('resentment')),
               shame=float(data.get('shame')))
     agent.put(occ)
-    pad = agent.get()
-    emit('occ_updated', {'x': pad.state[0],
-                         'y': pad.state[1],
-                         'z': pad.state[2],
-                         'mood': pad.mood()}, broadcast=True)
+    emit('occ_updated', {'x': occ.pad.state[0],
+                         'y': occ.pad.state[1],
+                         'z': occ.pad.state[2],
+                         'mood': occ.pad.mood()}, broadcast=True)
 
 @socketio.on('mood_get', namespace='/socket')
 def mood_get_rcv():
