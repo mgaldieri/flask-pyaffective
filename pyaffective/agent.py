@@ -1,6 +1,7 @@
 __author__ = 'mgaldieri'
 from emotions import OCEAN, OCC, PAD
 from time import time
+from copy import deepcopy
 import numpy as np
 
 
@@ -8,19 +9,21 @@ class Agent():
     # TODO: make event wear off
     def __init__(self, personality=None):
         self.personality = self.set_personality(personality) if personality else OCEAN()
-        self.mood = self.personality.pad.state
         self.neurotics = 1+((self.personality.neuroticism+1.0)/2.0)
         self.timer = time()
         self.time_threshold = 60
-        self.return_source = None
         self.forward = False
         self.events = []
 
     def set_personality(self, personality=None):
         self.personality = personality if personality else OCEAN()
+        self.mood = deepcopy(self.personality.pad.state)
+        self.source = deepcopy(self.personality.pad.state)
+        self.target = deepcopy(self.personality.pad.state)
 
     def put(self, vals=None):
         self.timer = time()
+        self.source = deepcopy(self.mood)
         if vals:
             if isinstance(vals, np.ndarray):
                 self.events.append(vals)
@@ -34,7 +37,6 @@ class Agent():
             self.forward = True
         else:
             self.forward = False
-            self.return_source = self.mood
 
     def get(self, mode='pad'):
         '''
@@ -45,18 +47,28 @@ class Agent():
         :param mode:
         :return:
         '''
-        if np.allclose(self.mood, self.return_source):
-            return self.return_source
-        if np.allclose(self.mood, self.personality.pad.state):
-            return self.personality.pad.state
+        if len(self.events) > 0:
+            self.target = np.median(self.events, axis=0)
+            self.events = []
+
+        # print 'Source: '+str(self.source)
+        # print 'Target: '+str(self.target)
+        # print 'Mood: '+str(self.mood)
+
         thres = self.time_threshold/self.neurotics
         delta_t = time() - self.timer
         if delta_t > 60:
             delta_t = 60
         k = (float(thres)-float(delta_t))/float(thres)
+
         if self.forward:
-            self.return_source = np.median(self.events)
-            self.mood = k * self.return_source + (1-k) * self.personality.pad.state
+            self.mood = k * self.source + (1-k) * self.target
         else:
-            self.mood = k * self.personality.pad.state + (1-k) * self.return_source
+            self.mood = k * self.personality.pad.state + (1-k) * self.source
+
+        # if np.allclose(self.mood, self.personality.pad.state):
+        #     delta_t = 60
+        # if np.allclose(self.mood, self.target):
+        #     delta_t = 60
+
         return PAD(pleasure=self.mood[0], arousal=self.mood[1], dominance=self.mood[2])

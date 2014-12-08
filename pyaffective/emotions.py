@@ -42,6 +42,7 @@ class PAD():
         self.levels = ['levemente', 'moderadamente', 'altamente']
 
     def mood(self):
+        # print 'PAD state: '+str(self.state)
         idx, val = min(enumerate([cosine(self.state, s) for s in self.states.values()]), key=operator.itemgetter(1))
         level = self.levels[int(round((len(self.levels)-1)*np.linalg.norm(self.state)/np.linalg.norm(np.ones(3))))]
         return ' '.join([level, self.states.keys()[idx]])
@@ -82,31 +83,31 @@ class OCEAN():
 
 class OCC():
     pad_map = {
-        'admiration': {'P': 0.5, 'A': 0.3, 'D': -0.2},
-        'gloating': {'P': 0.3, 'A': -0.3, 'D': -0.1},
-        'gratification': {'P': 0.6, 'A': 0.5, 'D': 0.4},
-        'gratitude': {'P': 0.4, 'A': 0.2, 'D': -0.3},
-        'hope': {'P': 0.2, 'A': 0.2, 'D': -0.1},
-        'happy_for': {'P': 0.4, 'A': 0.2, 'D': 0.2},
-        'joy': {'P': 0.4, 'A': 0.2, 'D': 0.1},
-        'liking': {'P': 0.4, 'A': 0.16, 'D': -0.24},
-        'love': {'P': 0.3, 'A': 0.1, 'D': 0.2},
-        'pride': {'P': 0.4, 'A': 0.3, 'D': 0.3},
-        'relief': {'P': 0.2, 'A': -0.3, 'D': 0.4},
-        'satisfaction': {'P': 0.3, 'A': -0.2, 'D': 0.4},
+        'admiration': {'P': 0.5, 'A': 0.3, 'D': -0.2, 'valence': 1},
+        'gloating': {'P': 0.3, 'A': -0.3, 'D': -0.1, 'valence': 1},
+        'gratification': {'P': 0.6, 'A': 0.5, 'D': 0.4, 'valence': 1},
+        'gratitude': {'P': 0.4, 'A': 0.2, 'D': -0.3, 'valence': 1},
+        'hope': {'P': 0.2, 'A': 0.2, 'D': -0.1, 'valence': 1},
+        'happy_for': {'P': 0.4, 'A': 0.2, 'D': 0.2, 'valence': 1},
+        'joy': {'P': 0.4, 'A': 0.2, 'D': 0.1, 'valence': 1},
+        'liking': {'P': 0.4, 'A': 0.16, 'D': -0.24, 'valence': 1},
+        'love': {'P': 0.3, 'A': 0.1, 'D': 0.2, 'valence': 1},
+        'pride': {'P': 0.4, 'A': 0.3, 'D': 0.3, 'valence': 1},
+        'relief': {'P': 0.2, 'A': -0.3, 'D': 0.4, 'valence': 1},
+        'satisfaction': {'P': 0.3, 'A': -0.2, 'D': 0.4, 'valence': 1},
 
-        'anger': {'P': -0.51, 'A': 0.59, 'D': 0.25},
-        'disliking': {'P': -0.4, 'A': 0.2, 'D': 0.1},
-        'disappointment': {'P': -0.3, 'A': 0.1, 'D': -0.4},
-        'distress': {'P': -0.4, 'A': -0.2, 'D': -0.5},
-        'fear': {'P': -0.64, 'A': 0.6, 'D': -0.43},
-        'fears_confirmed': {'P': -0.5, 'A': -0.3, 'D': -0.7},
-        'hate': {'P': -0.6, 'A': 0.6, 'D': 0.3},
-        'pity': {'P': -0.4, 'A': -0.2, 'D': -0.5},
-        'remorse': {'P': -0.3, 'A': 0.1, 'D': -0.6},
-        'reproach': {'P': -0.3, 'A': -0.1, 'D': 0.4},
-        'resentment': {'P': -0.2, 'A': -0.3, 'D': -0.2},
-        'shame': {'P': -0.3, 'A': 0.1, 'D': -0.6},
+        'anger': {'P': -0.51, 'A': 0.59, 'D': 0.25, 'valence': -1},
+        'disliking': {'P': -0.4, 'A': 0.2, 'D': 0.1, 'valence': -1},
+        'disappointment': {'P': -0.3, 'A': 0.1, 'D': -0.4, 'valence': -1},
+        'distress': {'P': -0.4, 'A': -0.2, 'D': -0.5, 'valence': -1},
+        'fear': {'P': -0.64, 'A': 0.6, 'D': -0.43, 'valence': -1},
+        'fears_confirmed': {'P': -0.5, 'A': -0.3, 'D': -0.7, 'valence': -1},
+        'hate': {'P': -0.6, 'A': 0.6, 'D': 0.3, 'valence': -1},
+        'pity': {'P': -0.4, 'A': -0.2, 'D': -0.5, 'valence': -1},
+        'remorse': {'P': -0.3, 'A': 0.1, 'D': -0.6, 'valence': -1},
+        'reproach': {'P': -0.3, 'A': -0.1, 'D': 0.4, 'valence': -1},
+        'resentment': {'P': -0.2, 'A': -0.3, 'D': -0.2, 'valence': -1},
+        'shame': {'P': -0.3, 'A': 0.1, 'D': -0.6, 'valence': -1},
     }
 
     def __init__(self,
@@ -180,6 +181,6 @@ class OCC():
         emotion = {'P': 0.0, 'A': 0.0, 'D': 0.0}
         for attr in self.pad_map.keys():
             temp = self.__dict__.get(attr)
-            emotion = {k: emotion[k]+temp*self.pad_map[attr][k] for k in self.pad_map[attr]}
+            emotion = {k: emotion[k]+temp*self.pad_map[attr][k] for k in (set(self.pad_map[attr].keys())-{'valence'})}
         #emotion = {k: emotion[k]/24 for k in emotion}
         return PAD(pleasure=emotion['P'], arousal=emotion['A'], dominance=emotion['D'])

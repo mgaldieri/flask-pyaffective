@@ -19,6 +19,7 @@ app.logger.info('*****\n\t\t\tAPP STARTED')
 
 from pyaffective.agent import Agent
 from pyaffective.emotions import OCC, OCEAN, PAD
+from utils.constants import OCEAN_i18n, OCC_i18n
 
 agent = Agent()
 
@@ -31,9 +32,12 @@ def ocean_rcv(data):
                   agreeableness=float(data.get('agreeableness')),
                   neuroticism=float(data.get('neuroticism')))
     agent.set_personality(ocean)
-    emit('ocean_updated', {'x': ocean.pad.state[0],
-                           'y': ocean.pad.state[1],
-                           'z': ocean.pad.state[2],
+    emit('ocean_updated', {'pers_x': agent.personality.pad.state[0],
+                           'pers_y': agent.personality.pad.state[1],
+                           'pers_z': agent.personality.pad.state[2],
+                           'mood_x': agent.mood[0],
+                           'mood_y': agent.mood[1],
+                           'mood_z': agent.mood[2],
                            'mood': ocean.pad.mood().capitalize()}, broadcast=True)
 
 
@@ -64,19 +68,30 @@ def occ_rcv(data):
               resentment=float(data.get('resentment')),
               shame=float(data.get('shame')))
     agent.put(occ)
+    # print 'OCC state: '+str(occ.pad.state)
     emit('occ_updated', {'x': occ.pad.state[0],
                          'y': occ.pad.state[1],
                          'z': occ.pad.state[2],
                          'mood': occ.pad.mood()}, broadcast=True)
 
+
 @socketio.on('mood_get', namespace='/socket')
 def mood_get_rcv():
-    pass
+    pad = agent.get()
+    emit('mood_updated', {'x': pad.state[0],
+                          'y': pad.state[1],
+                          'z': pad.state[2],
+                          'mood': pad.mood()}, broadcast=True)
 
 
 @app.route('/affective')
-def hello_world():
-    return render_template('index.html')
+def affective():
+    ocean_keys = sorted(OCEAN_i18n.keys(), key=lambda k: OCEAN_i18n[k])
+    occ_keys = sorted(OCC.pad_map.keys(), key=lambda k: OCC.pad_map[k]['valence'])
+    return render_template('index.html', ocean_keys=ocean_keys, OCEAN_i18n=OCEAN_i18n,
+                           occ_keys=zip(sorted(occ_keys[:12], key=lambda k: OCC_i18n[k]),
+                                        sorted(occ_keys[12:], key=lambda k: OCC_i18n[k])),
+                           OCC_i18n=OCC_i18n)
 
 @app.route('/canvas')
 def canvas():
