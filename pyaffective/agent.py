@@ -72,3 +72,17 @@ class Agent():
         #     delta_t = 60
 
         return PAD(pleasure=self.mood[0], arousal=self.mood[1], dominance=self.mood[2])
+
+    @staticmethod
+    def get_progress(delta):
+        # quadratic progress
+        if not 0.0 <= delta <= 1.0:
+            raise ValueError("Delta deve possuir um valor entre 0.0 e 1.0")
+        return -delta * (delta-2)
+
+    @staticmethod
+    def get_point_on_line(x0, y0, z0, x1, y1, z1, progress):
+        x = ((x1-x0) * progress) + x0
+        y = ((y1-y0) * progress) + y0
+        z = ((z1-z0) * progress) + z0
+        return x, y, z
