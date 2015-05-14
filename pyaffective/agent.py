@@ -28,7 +28,11 @@ class Agent:
         # newer implementation
         self._in_q = Queue()
         self._out_q = Queue(1)
-        self.MS_PER_UPDATE = 16
+        self.FRAMES_PER_SECOND = 60.0
+        self.MS_PER_UPDATE = 1.0/self.FRAMES_PER_SECOND
+        self.TIME_TO_TRAVEL = 1.0  # seconds
+        self.BASE_VELOCITY = self.TIME_TO_TRAVEL/self.MS_PER_UPDATE
+        self.DISTANCE_TOLERANCE = 1.0/100.0
 
     def start(self):
         data = threading.local()
@@ -73,7 +77,7 @@ class Agent:
             self._process_input(data)
 
             while lag >= self.MS_PER_UPDATE:
-                self._update()
+                self._update(data)
                 lag -= self.MS_PER_UPDATE
 
             self._process_output(data)
@@ -89,8 +93,22 @@ class Agent:
             self._out_q.get()
         self._out_q.put(data.state)
 
-    def _update(self):
+    def _update(self, data):
         # TODO: process internal state
+        if len(data.events) > 0:
+            # calculate events weighted average
+            vectors = [e.values for e in data.events]
+            weights = [e.influence for e in data.events]
+            avg_event = np.average(vectors, axis=0, weights=weights)
+            # move mood towards average event
+            if np.allclose(data.state, avg_event):
+                data.state = avg_event
+            else:
+                pass
+        else:
+            # move mood towards personality
+            pass
+
         pass
 
     def _stop(self, data):
