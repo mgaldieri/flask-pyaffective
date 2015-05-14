@@ -2,18 +2,104 @@ __author__ = 'mgaldieri'
 from emotions import OCEAN, OCC, PAD
 from time import time
 from copy import deepcopy
+from events import Event
 import numpy as np
 
+from collections import namedtuple
+from Queue import Queue
+import threading
 
-class Agent():
+Invocation = namedtuple('Invocation', ('fn', 'args', 'kwargs'))
+
+
+class Agent:
     # TODO: make event wear off
     def __init__(self, personality=None):
+        self.mood = None
+        self.source = None
+        self.target = None
         self.personality = self.set_personality(personality) if personality else OCEAN()
+
         self.neurotics = 1+((self.personality.neuroticism+1.0)/2.0)
         self.timer = time()
         self.time_threshold = 60
         self.forward = False
-        self.events = []
+
+        # newer implementation
+        self._in_q = Queue()
+        self._out_q = Queue(1)
+        self.MS_PER_UPDATE = 16
+
+    def start(self):
+        data = threading.local()
+        thread = threading.Thread(name='Agent Runloop', target=self._run, args=(data,))
+        thread.daemon = True
+        thread.start()
+
+    def stop(self):
+        self._in_q.put(Invocation(self._stop, (), {}))
+
+    def put(self, values=None):
+        if values:
+            if isinstance(values, np.ndarray):
+                v = values
+            elif isinstance(values, PAD):
+                v = values.state
+            elif isinstance(values, OCC):
+                v = values.pad.state
+            else:
+                v = None
+            if v:
+                self._in_q.put(Invocation(self._put, (v,), {}))
+
+    def get(self):
+        mood = self._out_q.get()
+        if mood and len(mood) == 3:
+            return PAD(pleasure=mood[0], arousal=mood[1], dominance=mood[2])
+
+    def _run(self, data):
+        data.running = True
+        data.events = []
+        data.state = []
+        previous = time()
+        lag = 0.0
+        print 'running...'
+        while data.running:
+            current = time()
+            elapsed = current - previous
+            previous = current
+            lag += elapsed
+
+            self._process_input(data)
+
+            while lag >= self.MS_PER_UPDATE:
+                self._update()
+                lag -= self.MS_PER_UPDATE
+
+            self._process_output(data)
+        print 'stopped!'
+
+    def _process_input(self, data):
+        while not self._in_q.empty():
+            job = self._in_q.get()
+            job.fn(data, *job.args, **job.kwargs)
+
+    def _process_output(self, data):
+        if self._out_q.full():
+            self._out_q.get()
+        self._out_q.put(data.state)
+
+    def _update(self):
+        # TODO: process internal state
+        pass
+
+    def _stop(self, data):
+        print 'stopping...'
+        data.running = False
+
+    def _put(self, data, value):
+        print 'putting data...'
+        data.events.append(Event(value))
 
     def set_personality(self, personality=None):
         self.personality = personality if personality else OCEAN()
@@ -21,57 +107,57 @@ class Agent():
         self.source = deepcopy(self.personality.pad.state)
         self.target = deepcopy(self.personality.pad.state)
 
-    def put(self, vals=None):
-        self.timer = time()
-        self.source = deepcopy(self.mood)
-        if vals:
-            if isinstance(vals, np.ndarray):
-                self.events.append(vals)
-                #self.return_source = vals
-            elif isinstance(vals, PAD):
-                self.events.append(vals.state)
-            elif isinstance(vals, OCC):
-                self.events.append(vals.pad.state)
-            else:
-                raise Exception('Invalid event type')
-            self.forward = True
-        else:
-            self.forward = False
+    # def put(self, vals=None):
+    #     self.timer = time()
+    #     self.source = deepcopy(self.mood)
+    #     if vals:
+    #         if isinstance(vals, np.ndarray):
+    #             self.events.append(vals)
+    #             #self.return_source = vals
+    #         elif isinstance(vals, PAD):
+    #             self.events.append(vals.state)
+    #         elif isinstance(vals, OCC):
+    #             self.events.append(vals.pad.state)
+    #         else:
+    #             raise Exception('Invalid event type')
+    #         self.forward = True
+    #     else:
+    #         self.forward = False
 
-    def get(self, mode='pad'):
-        '''
-        >>> a = np.array([3,2])
-        >>> b = np.array([8,5])
-        >>> k = 0.6
-        >>> p = k*b+(1-k)*a
-        :param mode:
-        :return:
-        '''
-        if len(self.events) > 0:
-            self.target = np.median(self.events, axis=0)
-            self.events = []
-
-        # print 'Source: '+str(self.source)
-        # print 'Target: '+str(self.target)
-        # print 'Mood: '+str(self.mood)
-
-        thres = self.time_threshold/self.neurotics
-        delta_t = time() - self.timer
-        if delta_t > 60:
-            delta_t = 60
-        k = (float(thres)-float(delta_t))/float(thres)
-
-        if self.forward:
-            self.mood = k * self.source + (1-k) * self.target
-        else:
-            self.mood = k * self.personality.pad.state + (1-k) * self.source
-
-        # if np.allclose(self.mood, self.personality.pad.state):
-        #     delta_t = 60
-        # if np.allclose(self.mood, self.target):
-        #     delta_t = 60
-
-        return PAD(pleasure=self.mood[0], arousal=self.mood[1], dominance=self.mood[2])
+    # def get(self, mode='pad'):
+    #     """
+    #     >>> a = np.array([3,2])
+    #     >>> b = np.array([8,5])
+    #     >>> k = 0.6
+    #     >>> p = k*b+(1-k)*a
+    #     :param mode:
+    #     :return:
+    #     """
+    #     if len(self.events) > 0:
+    #         self.target = np.median(self.events, axis=0)
+    #         self.events = []
+    #
+    #     # print 'Source: '+str(self.source)
+    #     # print 'Target: '+str(self.target)
+    #     # print 'Mood: '+str(self.mood)
+    #
+    #     thres = self.time_threshold/self.neurotics
+    #     delta_t = time() - self.timer
+    #     if delta_t > 60:
+    #         delta_t = 60
+    #     k = (float(thres)-float(delta_t))/float(thres)
+    #
+    #     if self.forward:
+    #         self.mood = k * self.source + (1-k) * self.target
+    #     else:
+    #         self.mood = k * self.personality.pad.state + (1-k) * self.source
+    #
+    #     # if np.allclose(self.mood, self.personality.pad.state):
+    #     #     delta_t = 60
+    #     # if np.allclose(self.mood, self.target):
+    #     #     delta_t = 60
+    #
+    #     return PAD(pleasure=self.mood[0], arousal=self.mood[1], dominance=self.mood[2])
 
     @staticmethod
     def get_progress(delta):

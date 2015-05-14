@@ -5,7 +5,7 @@ import numpy as np
 import operator
 
 
-class PAD():
+class PAD:
     pleasure = 0.0
     arousal = 0.0
     dominance = 0.0
@@ -51,7 +51,7 @@ class PAD():
         return '<PAD: %s>' % self.mood()
 
 
-class OCEAN():
+class OCEAN:
     def __init__(self, openness=None, conscientiousness=None, extraversion=None, agreeableness=None, neuroticism=None, personality=np.zeros(5)):
         if not all([openness==None, conscientiousness==None, extraversion==None, agreeableness==None, neuroticism==None]):
             _personality = np.array([openness, conscientiousness, extraversion, agreeableness, neuroticism])
@@ -81,7 +81,7 @@ class OCEAN():
         return PAD(pleasure, arousal, dominance)
 
 
-class OCC():
+class OCC:
     pad_map = {
         'admiration': {'P': 0.5, 'A': 0.3, 'D': -0.2, 'valence': 1},
         'gloating': {'P': 0.3, 'A': -0.3, 'D': -0.1, 'valence': 1},
