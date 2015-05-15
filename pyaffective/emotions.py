@@ -11,7 +11,7 @@ class PAD:
     dominance = 0.0
 
     def __init__(self, pleasure=None, arousal=None, dominance=None, state=np.zeros(3)):
-        if not all([pleasure==None, arousal==None, dominance==None]):
+        if not all([pleasure is None, arousal is None, dominance is None]):
             _state = np.array([pleasure, arousal, dominance])
             _norm = np.linalg.norm(_state, np.inf)
             if _norm > 1:
@@ -53,7 +53,7 @@ class PAD:
 
 class OCEAN:
     def __init__(self, openness=None, conscientiousness=None, extraversion=None, agreeableness=None, neuroticism=None, personality=np.zeros(5)):
-        if not all([openness==None, conscientiousness==None, extraversion==None, agreeableness==None, neuroticism==None]):
+        if not all([openness is None, conscientiousness is None, extraversion is None, agreeableness is None, neuroticism is None]):
             _personality = np.array([openness, conscientiousness, extraversion, agreeableness, neuroticism])
             _norm = np.linalg.norm(_personality, np.inf)
             if _norm > 1:
@@ -138,10 +138,10 @@ class OCC:
                  shame=None,
 
                  pad=None):
-        if not all([admiration==None, gloating==None, gratification==None, gratitude==None, hope==None, happy_for==None,
-                    joy==None, liking==None, love==None, pride==None, relief==None, satisfaction==None,
-                    anger==None, disliking==None, disappointment==None, distress==None, fear==None, fears_confirmed==None,
-                    hate==None, pity==None, remorse==None, reproach==None, resentment==None, shame==None]):
+        if not all([admiration is None, gloating is None, gratification is None, gratitude is None, hope is None, happy_for is None,
+                    joy is None, liking is None, love is None, pride is None, relief is None, satisfaction is None,
+                    anger is None, disliking is None, disappointment is None, distress is None, fear is None, fears_confirmed is None,
+                    hate is None, pity is None, remorse is None, reproach is None, resentment is None, shame is None]):
             self.admiration = admiration
             self.gloating = gloating
             self.gratification = gratification
@@ -182,5 +182,4 @@ class OCC:
         for attr in self.pad_map.keys():
             temp = self.__dict__.get(attr)
             emotion = {k: emotion[k]+temp*self.pad_map[attr][k] for k in (set(self.pad_map[attr].keys())-{'valence'})}
-        #emotion = {k: emotion[k]/24 for k in emotion}
         return PAD(pleasure=emotion['P'], arousal=emotion['A'], dominance=emotion['D'])
