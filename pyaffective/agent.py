@@ -49,7 +49,7 @@ class Agent:
 
     def get(self):
         mood = self._out_q.get()
-        if mood and len(mood) == 3:
+        if mood is not None and len(mood) == 3:
             return PAD(pleasure=mood[0], arousal=mood[1], dominance=mood[2])
 
     def set_personality(self, values):

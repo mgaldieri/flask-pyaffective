@@ -22,7 +22,7 @@ from pyaffective.emotions import OCC, OCEAN, PAD
 from utils.constants import OCEAN_i18n, OCC_i18n
 
 agent = Agent()
-
+agent.start()
 
 @socketio.on('ocean', namespace='/socket')
 def ocean_rcv(data):
@@ -32,12 +32,13 @@ def ocean_rcv(data):
                   agreeableness=float(data.get('agreeableness')),
                   neuroticism=float(data.get('neuroticism')))
     agent.set_personality(ocean)
-    emit('ocean_updated', {'pers_x': agent.personality.pad.state[0],
-                           'pers_y': agent.personality.pad.state[1],
-                           'pers_z': agent.personality.pad.state[2],
-                           'mood_x': agent.mood[0],
-                           'mood_y': agent.mood[1],
-                           'mood_z': agent.mood[2],
+    mood = agent.get()
+    emit('ocean_updated', {'pers_x': ocean.pad.state[0],
+                           'pers_y': ocean.pad.state[1],
+                           'pers_z': ocean.pad.state[2],
+                           'mood_x': mood.state[0],
+                           'mood_y': mood.state[1],
+                           'mood_z': mood.state[2],
                            'mood': ocean.pad.mood().capitalize()}, broadcast=True)
 
 
