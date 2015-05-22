@@ -44,8 +44,7 @@ class Agent:
                 v = values.pad.state
             else:
                 raise ValueError('Valores de evento inválidos')
-            if v:
-                self._in_q.put(Invocation(self._put, (v,), {}))
+            self._in_q.put(Invocation(self._put, (v,), {}))
 
     def get(self):
         mood = self._out_q.get()
@@ -73,22 +72,27 @@ class Agent:
         lag = 0.0
         print 'running...'
         while data.running:
-            current = time()
-            elapsed = current - previous
-            previous = current
-            lag += elapsed
+            try:
+                current = time()
+                elapsed = current - previous
+                previous = current
+                lag += elapsed
 
-            self._process_input(data)
+                self._process_input(data)
 
-            while lag >= self.MS_PER_UPDATE:
-                self._update(data)
-                lag -= self.MS_PER_UPDATE
+                while lag >= self.MS_PER_UPDATE:
+                    self._update(data)
+                    lag -= self.MS_PER_UPDATE
 
-            self._process_output(data)
+                self._process_output(data)
+            except Exception:
+                print Exception
+                data.running = False
         print 'stopped!'
 
     def _process_input(self, data):
         while not self._in_q.empty():
+            print 'HERE'
             job = self._in_q.get()
             job.fn(data, *job.args, **job.kwargs)
 
