@@ -10,31 +10,36 @@ from collections import namedtuple
 from Queue import Queue
 import threading
 
+from utils import stacktracer
+
 Invocation = namedtuple('Invocation', ('fn', 'args', 'kwargs'))
 
 
 class Agent:
     def __init__(self, personality=None):
         self.personality = None
+        self.neurotics = 0.0
+        self.MAX_NEUROTICS = 3.0
         self._in_q = Queue()
         self._out_q = Queue(1)
         self.FRAMES_PER_SECOND = 60.0
-        self.MS_PER_UPDATE = 1.0/self.FRAMES_PER_SECOND
-        self.TIME_TO_TRAVEL = 1.0  # seconds
-        self.BASE_VELOCITY = self.TIME_TO_TRAVEL/self.MS_PER_UPDATE
-        self.DISTANCE_TOLERANCE = 1.0/100.0
+        self.SECS_PER_UPDATE = 1.0/self.FRAMES_PER_SECOND
+        self.EVENT_DURATION = 1.0  # seconds
+        self.BASE_VELOCITY = 1.0/250  # self.TIME_TO_TRAVEL*self.SECS_PER_UPDATE
+        self.DISTANCE_TOLERANCE = 1.0/10000.0
 
         self.set_personality(personality)
-        self.neurotics = 1+((self.personality.neuroticism+1.0)/2.0)
 
     def start(self):
+        stacktracer.trace_start("trace.html")
         data = threading.local()
         thread = threading.Thread(name='Agent Runloop', target=self._run, args=(data,))
         thread.daemon = True
         thread.start()
 
     def stop(self):
-        self._in_q.put(Invocation(self._stop, (), {}))
+        stacktracer.trace_stop()
+        self._in_q.put_nowait(Invocation(self._stop, (), {}))
 
     def put(self, values=None):
         if values:
@@ -44,7 +49,7 @@ class Agent:
                 v = values.pad.state
             else:
                 raise ValueError('Valores de evento inválidos')
-            self._in_q.put(Invocation(self._put, (v,), {}))
+            self._in_q.put_nowait(Invocation(self._put, (v,), {}))
 
     def get(self):
         mood = self._out_q.get()
@@ -61,8 +66,7 @@ class Agent:
                 raise ValueError('Valores de personalidade inválidos')
         else:
             ocean = OCEAN()
-        self._in_q.put(Invocation(self._set_personality, (ocean,), {}))
-        self.personality = ocean
+        self._in_q.put_nowait(Invocation(self._set_personality, (ocean,), {}))
 
     def _run(self, data):
         data.running = True
@@ -72,60 +76,65 @@ class Agent:
         lag = 0.0
         print 'running...'
         while data.running:
-            try:
-                current = time()
-                elapsed = current - previous
-                previous = current
-                lag += elapsed
+            # try:
+            current = time()
+            elapsed = current - previous
+            previous = current
+            lag += elapsed
 
-                self._process_input(data)
+            self._process_input(data)
+            while lag >= self.SECS_PER_UPDATE:
+                self._update(data)
+                lag -= self.SECS_PER_UPDATE
 
-                while lag >= self.MS_PER_UPDATE:
-                    self._update(data)
-                    lag -= self.MS_PER_UPDATE
-
-                self._process_output(data)
-            except Exception:
-                print Exception
-                data.running = False
+            self._process_output(data)
+            # except Exception:
+            #     print Exception
+            #     data.running = False
         print 'stopped!'
 
     def _process_input(self, data):
         while not self._in_q.empty():
-            print 'HERE'
             job = self._in_q.get()
             job.fn(data, *job.args, **job.kwargs)
 
     def _process_output(self, data):
         if self._out_q.full():
-            self._out_q.get()
-        self._out_q.put(data.state)
+            with self._out_q.mutex:
+                self._out_q.queue.clear()
+        self._out_q.put_nowait(data.state)
 
     def _update(self, data):
         if len(data.events) > 0:
             # calculate events weighted average
             vectors = []
             weights = []
+            replacement = []
             for i in range(len(data.events)):
                 if data.events[i].get_influence() > 0:
-                    vectors.append(data.events[i].value)
+                    vectors.append(data.events[i].values)
                     weights.append(data.events[i].get_influence())
-                else:
-                    data.events.pop(i)
-            avg_event = np.average(vectors, axis=0, weights=weights)
-            # move mood towards average event
-            self._move_to(data.state, avg_event)
+                    replacement.append(data.events[i])
+                # else:
+                #     data.events.pop(i)
+            data.events = list(replacement)
+            if len(vectors) > 0 and len(weights) > 0:
+                avg_event = np.average(vectors, axis=0, weights=weights)
+                # move mood towards average event
+                data.state = self._move_to(data.state, avg_event)
         else:
-            # move mood towards personalit
-            self._move_to(data.state, data.personality)
+            # move mood towards personality
+            data.state = self._move_to(data.state, data.personality)
+            # print 'DATA STATE', data.state
+            # print 'DATA PERSONALITY', data.personality
 
     def _move_to(self, _from, _to):
         if np.allclose(_from, _to, self.DISTANCE_TOLERANCE):
-            _from = _to
-        else:
-            direction = _to - _from
-            direction = direction/np.linalg.norm(direction)
-            _from = direction + self.BASE_VELOCITY * self.neurotics
+            return np.array(_to)
+        direction = _to - _from
+        direction /= np.linalg.norm(direction)
+        _from += direction * self.BASE_VELOCITY * self.neurotics
+        return _from
 
     def _stop(self, data):
         print 'stopping...'
@@ -133,9 +142,16 @@ class Agent:
 
     def _put(self, data, value):
         print 'putting data...'
-        data.events.append(Event(value))
+        data.events.append(Event(value, self.EVENT_DURATION))
 
     def _set_personality(self, data, value):
         print 'setting personality...'
-        data.personality = value.pad.state
-        data.state = value.pad.state
+        data.personality = np.array(value.pad.state)
+        data.state = np.array(value.pad.state)
+        self.personality = value
+        self.neurotics = Agent.map_value(value.neuroticism, -1, 1, 1, self.MAX_NEUROTICS)
+
+    @staticmethod
+    def map_value(value=0.0, in_min=0.0, in_max=1.0, out_min=0.0, out_max=1.0):
+        return (float(value) - float(in_min)) * (float(out_max) - float(out_min)) / (
+            float(in_max) - float(in_min)) + float(out_min)

@@ -60,11 +60,6 @@
         gridYZ.rotation.z = Math.PI/2;
         scene.add(gridYZ);
 
-        var mood_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
-        var mood_mat = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-        var mood_sphere = new THREE.Mesh( mood_geom, mood_mat );
-        scene.add( mood_sphere );
-
         var occ_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
         var occ_mat = new THREE.MeshBasicMaterial( {color: 0xff0000} );
         var occ_sphere = new THREE.Mesh( occ_geom, occ_mat );
@@ -75,7 +70,13 @@
         var pers_sphere = new THREE.Mesh( pers_geom, pers_mat );
         scene.add( pers_sphere );
 
+        var mood_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
+        var mood_mat = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+        var mood_sphere = new THREE.Mesh( mood_geom, mood_mat );
+        scene.add( mood_sphere );
+
         var axis = new THREE.AxisHelper(1.5);
+        axis.material.linewidth = 3;
         scene.add(axis);
 
         camera.position.z = 3;

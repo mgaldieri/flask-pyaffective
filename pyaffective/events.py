@@ -5,7 +5,7 @@ from time import time
 
 class Event:
     def __init__(self, values=None, duration=1.0):
-        if not values:
+        if values is None:
             values = []
         self.values = values
         self.duration = duration

@@ -1,3 +1,4 @@
+pygments
 Flask==0.10.1
 Flask-SocketIO==0.4.2
 Jinja2==2.7.3

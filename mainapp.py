@@ -79,6 +79,7 @@ def occ_rcv(data):
 @socketio.on('mood_get', namespace='/socket')
 def mood_get_rcv():
     pad = agent.get()
+    # print 'WEB PAD:', [pad.state[0], pad.state[1], pad.state[2]]
     emit('mood_updated', {'x': pad.state[0],
                           'y': pad.state[1],
                           'z': pad.state[2],
