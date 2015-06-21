@@ -25,15 +25,12 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 __author__ = 'mgaldieri'
 from emotions import OCEAN, OCC, PAD
 from time import time
-from copy import deepcopy
 from events import Event
 import numpy as np
 
 from collections import namedtuple
 from Queue import Queue
 import threading
-
-from utils import stacktracer
 
 Invocation = namedtuple('Invocation', ('fn', 'args', 'kwargs'))
 
@@ -54,14 +51,12 @@ class Agent:
         self.set_personality(personality)
 
     def start(self):
-        stacktracer.trace_start("trace.html")
         data = threading.local()
         thread = threading.Thread(name='Agent Runloop', target=self._run, args=(data,))
         thread.daemon = True
         thread.start()
 
     def stop(self):
-        stacktracer.trace_stop()
         self._in_q.put_nowait(Invocation(self._stop, (), {}))
 
     def put(self, values=None):
@@ -99,7 +94,6 @@ class Agent:
         lag = 0.0
         print 'running...'
         while data.running:
-            # try:
             current = time()
             elapsed = current - previous
             previous = current
@@ -111,9 +105,6 @@ class Agent:
                 lag -= self.SECS_PER_UPDATE
 
             self._process_output(data)
-            # except Exception:
-            #     print Exception
-            #     data.running = False
         print 'stopped!'
 
     def _process_input(self, data):
@@ -138,8 +129,6 @@ class Agent:
                     vectors.append(data.events[i].values)
                     weights.append(data.events[i].get_influence())
                     replacement.append(data.events[i])
-                # else:
-                #     data.events.pop(i)
             data.events = list(replacement)
             if len(vectors) > 0 and len(weights) > 0:
                 avg_event = np.average(vectors, axis=0, weights=weights)
@@ -148,8 +137,6 @@ class Agent:
         else:
             # move mood towards personality
             data.state = self._move_to(data.state, data.personality)
-            # print 'DATA STATE', data.state
-            # print 'DATA PERSONALITY', data.personality
 
     def _move_to(self, _from, _to):
         if np.allclose(_from, _to, self.DISTANCE_TOLERANCE):

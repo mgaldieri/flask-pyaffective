@@ -65,10 +65,6 @@ class PAD:
         self.levels = ['levemente', 'moderadamente', 'altamente']
 
     def mood(self):
-        # print 'PAD state: '+str(self.state)
-        # from pprint import pprint
-        # pprint(self.states)
-        # print('')
         idx, val = min(enumerate([cosine(self.state, s) for s in self.states.values()]), key=operator.itemgetter(1))
         level = self.levels[int(round((len(self.levels)-1)*np.linalg.norm(self.state)/np.linalg.norm(np.ones(3))))]
         return ' '.join([level, self.states.keys()[idx]])
