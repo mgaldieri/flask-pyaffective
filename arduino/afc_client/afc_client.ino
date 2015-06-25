@@ -4,6 +4,8 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 
+#define PIPE_ID  0
+
 #define TRIG_PIN 7
 #define ECHO_PIN 6
 
@@ -125,8 +127,8 @@ int readUltrasonicDistance() {
 FastRunningMedian<int, MAX_RUN, 0> distMedian;
 int distVal;
 
-const uint64_t talking_pipes[3]   = {0xf0f0f0f0d2LL, 0xf0f0f0f0c3LL, 0xf0f0f0f0b4ll};
-const uint64_t listening_pipes[3] = {0x3a3a3a3ad2LL, 0x3a3a3a3ac3LL, 0x3a3a3a3ab4LL};
+const uint64_t talking_pipes[3]   = {0xf0f0f0f0c2LL, 0xf0f0f0f0b3LL, 0xf0f0f0f0a4ll};
+const uint64_t listening_pipes[3] = {0x3a3a3a3ac2LL, 0x3a3a3a3ab3LL, 0x3a3a3a3aa4LL};
 
 RF24 radio(CE_PIN, CSN_PIN);
 
