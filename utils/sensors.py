@@ -26,7 +26,7 @@ class Influence:
                  neuroticism=InfluenceValue()):
         if not influence:
             influence = []
-        if len(influence) == 5 and hasattr(influence, '__iter__'):
+        if hasattr(influence, '__iter__') and len(influence) == 5:
             if all(isinstance(x, list) for x in influence) or all(isinstance(x, tuple) for x in influence):
                 # self.influence = influence
                 self.openness = InfluenceValue(influence[0][0], influence[0][1])
