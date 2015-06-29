@@ -26,6 +26,7 @@ __author__ = 'mgaldieri'
 from scipy.spatial.distance import cosine
 import numpy as np
 import operator
+import json
 
 
 class PAD:
@@ -94,9 +95,9 @@ class OCEAN:
         self.agreeableness = self.personality[3]
         self.neuroticism = self.personality[4]
 
-        self.pad = self.set_pad()
+        self.pad = self.get_pad()
 
-    def set_pad(self):
+    def get_pad(self):
         pleasure = 0.21*self.extraversion + 0.59*self.agreeableness + 0.19*self.neuroticism
         arousal = 0.15*self.openness + 0.30*self.agreeableness - 0.57*self.neuroticism
         dominance = 0.25*self.openness + 0.17*self.conscientiousness + 0.60*self.extraversion - 0.32*self.neuroticism
@@ -190,18 +191,22 @@ class OCC:
             self.resentment = resentment
             self.shame = shame
 
-            self.pad = self.set_pad()
+            self.pad = self.get_pad()
         else:
             if isinstance(pad, np.ndarray):
-                self.pad = PAD(pleasure=pad[0], arousal=pad[1], dominance=pad[3]) if pad else self.set_pad()
+                self.pad = PAD(pleasure=pad[0], arousal=pad[1], dominance=pad[3]) if pad else self.get_pad()
             elif isinstance(pad, PAD):
                 self.pad = pad
             else:
                 raise Exception('Invalid event type')
 
-    def set_pad(self):
+    def get_pad(self):
         emotion = {'P': 0.0, 'A': 0.0, 'D': 0.0}
         for attr in self.pad_map.keys():
             temp = self.__dict__.get(attr)
             emotion = {k: emotion[k]+temp*self.pad_map[attr][k] for k in (set(self.pad_map[attr].keys())-{'valence'})}
         return PAD(pleasure=emotion['P'], arousal=emotion['A'], dominance=emotion['D'])
+
+    def __iter__(self):
+        for k in self.pad_map.keys():
+            yield (k, self.__dict__.get(k))

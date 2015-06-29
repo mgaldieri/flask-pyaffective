@@ -131,7 +131,7 @@ class Agent:
                     replacement.append(data.events[i])
             data.events = list(replacement)
             if len(vectors) > 0 and len(weights) > 0:
-                avg_event = np.average(vectors, axis=0, weights=weights)
+                avg_event = np.average(vectors, axis=0, weights=np.array(weights).clip(0.00000001, float('inf')))
                 # move mood towards average event
                 data.state = self._move_to(data.state, avg_event)
         else:

@@ -24,6 +24,11 @@ from utils.constants import OCEAN_i18n, OCC_i18n
 agent = Agent()
 agent.start()
 
+@socketio.on('connect', namespace='/socket')
+def connect():
+    emit('connected', broadcast=True)
+
+
 @socketio.on('ocean', namespace='/socket')
 def ocean_rcv(data):
     ocean = OCEAN(openness=float(data.get('openness')),
@@ -33,12 +38,17 @@ def ocean_rcv(data):
                   neuroticism=float(data.get('neuroticism')))
     agent.set_personality(ocean)
     mood = agent.get()
-    emit('ocean_updated', {'pers_x': ocean.pad.state[0],
-                           'pers_y': ocean.pad.state[1],
-                           'pers_z': ocean.pad.state[2],
-                           'mood_x': mood.state[0],
-                           'mood_y': mood.state[1],
-                           'mood_z': mood.state[2],
+    emit('ocean_updated', {'openness': ocean.openness,
+                           'conscientiousness': ocean.conscientiousness,
+                           'extraversion': ocean.extraversion,
+                           'agreeableness': ocean.agreeableness,
+                           'neuroticism': ocean.neuroticism,
+                           'pers_p': ocean.pad.state[0],
+                           'pers_a': ocean.pad.state[1],
+                           'pers_d': ocean.pad.state[2],
+                           'mood_p': mood.state[0],
+                           'mood_a': mood.state[1],
+                           'mood_d': mood.state[2],
                            'mood': ocean.pad.mood().capitalize()}, broadcast=True)
 
 
@@ -69,10 +79,10 @@ def occ_rcv(data):
               resentment=float(data.get('resentment')),
               shame=float(data.get('shame')))
     agent.put(occ)
-    # print 'OCC state: '+str(occ.pad.state)
-    emit('occ_updated', {'x': occ.pad.state[0],
-                         'y': occ.pad.state[1],
-                         'z': occ.pad.state[2],
+    print 'OCC state: '+str(occ.pad.state)
+    emit('occ_updated', {'p': occ.pad.state[0],
+                         'a': occ.pad.state[1],
+                         'd': occ.pad.state[2],
                          'mood': occ.pad.mood()}, broadcast=True)
 
 
@@ -80,9 +90,9 @@ def occ_rcv(data):
 def mood_get_rcv():
     pad = agent.get()
     # print 'WEB PAD:', [pad.state[0], pad.state[1], pad.state[2]]
-    emit('mood_updated', {'x': pad.state[0],
-                          'y': pad.state[1],
-                          'z': pad.state[2],
+    emit('mood_updated', {'p': pad.state[0],
+                          'a': pad.state[1],
+                          'd': pad.state[2],
                           'mood': pad.mood()}, broadcast=True)
 
 
@@ -98,6 +108,10 @@ def affective():
 @app.route('/canvas')
 def canvas():
     return render_template('canvas.html')
+
+@app.route('/teste')
+def teste():
+    return render_template('teste.html')
 
 
 if __name__ == '__main__':

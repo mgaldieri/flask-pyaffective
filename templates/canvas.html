@@ -12,13 +12,13 @@
             <span id="mood">Neutro</span>
         </div>
         <div class="small-3 small-text-center column">
-            <div style="background-color: #00ff00">humor</div>
+            <div style="background-color: #ff8b08">humor</div>
         </div>
         <div class="small-3 small-text-center column">
-            <div style="background-color: #ff0000">evento</div>
+            <div style="background-color: #08ffff">evento</div>
         </div>
         <div class="small-3 small-text-center column">
-            <div style="background-color: #ffff00">personalidade</div>
+            <div style="background-color: #2cff08">personalidade</div>
         </div>
     </div>
 
@@ -60,20 +60,54 @@
         gridYZ.rotation.z = Math.PI/2;
         scene.add(gridYZ);
 
+        // event sphere
         var occ_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
-        var occ_mat = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+        var occ_mat = new THREE.MeshBasicMaterial( {color: 0x08ffff} );
         var occ_sphere = new THREE.Mesh( occ_geom, occ_mat );
         scene.add( occ_sphere );
 
+        // personality shpere
         var pers_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
-        var pers_mat = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+        var pers_mat = new THREE.MeshBasicMaterial( {color: 0x2cff08} );
         var pers_sphere = new THREE.Mesh( pers_geom, pers_mat );
         scene.add( pers_sphere );
 
+        // mood sphere
         var mood_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
-        var mood_mat = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+        var mood_mat = new THREE.MeshBasicMaterial( {color: 0xff8b08} );
         var mood_sphere = new THREE.Mesh( mood_geom, mood_mat );
         scene.add( mood_sphere );
+
+        // emotions spheres
+        var anger_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
+        var anger_mat = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+        var anger_sphere = new THREE.Mesh( anger_geom, anger_mat );
+        scene.add( anger_sphere );
+        anger_sphere.position.set(-0.51, 0.59, 0.25);
+
+        var fear_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
+        var fear_mat = new THREE.MeshBasicMaterial( {color: 0x000d94} );
+        var fear_sphere = new THREE.Mesh( fear_geom, fear_mat );
+        scene.add( fear_sphere );
+        fear_sphere.position.set(-0.64, 0.6, -0.43);
+
+        var joy_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
+        var joy_mat = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+        var joy_sphere = new THREE.Mesh( joy_geom, joy_mat );
+        scene.add( joy_sphere );
+        joy_sphere.position.set(0.4, 0.2, 0.1);
+
+        var love_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
+        var love_mat = new THREE.MeshBasicMaterial( {color: 0xff0050} );
+        var love_sphere = new THREE.Mesh( love_geom, love_mat );
+        scene.add( love_sphere );
+        love_sphere.position.set(0.3, 0.1, 0.2);
+
+        var distress_geom = new THREE.SphereGeometry( 0.1, 8, 8 );
+        var distress_mat = new THREE.MeshBasicMaterial( {color: 0x95a2a3} );
+        var distress_sphere = new THREE.Mesh( distress_geom, distress_mat );
+        scene.add( distress_sphere );
+        distress_sphere.position.set(-0.4, -0.2, -0.5)
 
         var axis = new THREE.AxisHelper(1.5);
         axis.material.linewidth = 3;
@@ -91,19 +125,23 @@
             var socket = io.connect('http://' + document.domain + ':' + location.port+'/socket');
 
             socket.on('ocean_updated', function(data) {
-                pers_sphere.position.set(data.pers_x, data.pers_y, data.pers_z);
-                mood_sphere.position.set(data.mood_x, data.mood_y, data.mood_z);
+                pers_sphere.position.set(data.pers_p, data.pers_a, data.pers_d);
+                mood_sphere.position.set(data.mood_p, data.mood_a, data.mood_d);
             });
 
             socket.on('occ_updated', function(data) {
-                occ_sphere.position.set(data.x, data.y, data.z);
+                occ_sphere.position.set(data.p, data.a, data.d);
             });
 
             socket.on('mood_updated', function(data) {
                 console.log('Mood updated');
-                mood_sphere.position.set(data.x, data.y, data.z);
+                mood_sphere.position.set(data.p, data.a, data.d);
                 $('#mood').text(data.mood);
             });
+
+{#            var interval = setInterval(function(){#}
+{#                socket.emit('mood_get')#}
+{#            }, 500);#}
         });
     </script>
 

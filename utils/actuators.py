@@ -28,7 +28,7 @@ class RGBled:
         :return: numpy array containing r, g and b values between 0 and 1
         """
         similarities = np.array([1-sqeuclidean(f, value.state) for f in self.f_vec])
-        strongest = max(enumerate(1-similarities/np.linalg.norm(similarities, 1)), key=itemgetter(1))
+        strongest = min(enumerate(1-similarities/np.linalg.norm(similarities, 1)), key=itemgetter(1))
         return self.rgb_vec[strongest[0]]
 
     def rgb_alt(self, value=PAD()):
